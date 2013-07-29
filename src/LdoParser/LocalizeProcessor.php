@@ -4,6 +4,46 @@ namespace LdoParser;
 
 class LocalizeProcessor {
 
+  var $projects = array();
+  var $offset = 0;
+  var $limit = 5;
+  var $output = '';
+
+  function __construct($projects, $offset, $limit) {
+    $this->projects = $projects;
+    $this->offset = $offset;
+    $this->limit = $limit;
+  }
+
+  function getOutput() {
+    return $this->output;
+  }
+  function parseItems() {
+    foreach ($this->projects as $project_name => $project) {
+      $strings = $this->parse_po_file($project_name . '-' . $project['version'] . '.po');
+      // This might need to be checked, as parsing libraries-7.x-2.1.fr.po returns
+      // an array of arrays, with the only main key being an empty string (hence the
+      // call to reset() below) - could this be different for other (more
+      // complicated) files?
+      $strings = reset($strings);
+      $similar = $this->compare_strings($strings);
+
+      // Do something smarter with the result here. :P
+      foreach ($similar as $key => $similar_set) {
+        $this->output .= '<p>Project ' . $project_name . ': <br />';
+        if (count($similar[$key]) > 0) {
+          $this->output .= $key . ' identical strings: <br />';
+          $this->output .= '<ul>';
+          foreach ($similar[$key] as $identical) {
+            $this->output .= '<li>' . implode(' & ', $identical) . '</li>';
+          }
+          $this->output .= '</ul>';
+        }
+        $this->output .= '</p>';
+      }
+    }
+  }
+
   /**
    * Copy of l10n_update module's _l10n_update_locale_import_read_po() function.
    *
@@ -15,7 +55,6 @@ class LocalizeProcessor {
     $strings = array();
 
     $filepath = realpath('../downloads/' . $filename);
-
     $fd = fopen($filepath, "rb"); // File will get closed by PHP on return
     if (!$fd) {
       // @TODO: Should be LocalizeProcessorException.

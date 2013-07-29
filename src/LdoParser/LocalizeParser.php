@@ -16,14 +16,26 @@ class LocalizeParser {
   var $version = '7.x-1.0';
   var $projects = array();
   var $output = '';
+  var $offset;
+  var $limit;
 
-  var $tmp_counter = 0;
+  function __construct($offset, $limit) {
+    $this->interval_bottom = $offset;
+    $this->interval_top = $offset + $limit;
+  }
 
   /**
    * Getter to fetch the generated output.
    */
   function getOutput() {
     return $this->output;
+  }
+
+  /**
+   * Getter to fetch the generated output.
+   */
+  function getProjects() {
+    return $this->projects;
   }
 
   /**
@@ -45,11 +57,8 @@ class LocalizeParser {
    */
   function downloadProjectsFiles() {
     while(list( , $project) = each($this->projects_raw)) {
-      if ($this->tmp_counter < 3) {
-        $clean_project_name = substr($project, 0, -1);
-        $this->buildProjectDetails($clean_project_name);
-      }
-      $this->tmp_counter++;
+      $clean_project_name = substr($project, 0, -1);
+      $this->buildProjectDetails($clean_project_name);
     }
   }
 
@@ -83,9 +92,6 @@ class LocalizeParser {
       if ($f) {
         fwrite($f, $translation_content);
         fclose($f);
-
-        // @TODO replace with partner's code.
-        $this->mimicReport($project);
       }
     }
   }
@@ -103,23 +109,10 @@ class LocalizeParser {
     $update_url = $this->update_url . $project_name . '/' . $this->major_version;
     $xml = simplexml_load_file($update_url);
 
-    $version = $xml->releases->release[0]->version;
+    $version = (string) $xml->releases->release[0]->version;
     $this->projects[$project_name]['version'] = $version;
 
     return $version;
-  }
-
-  /**
-   * Blabla to describe the report.
-   * It won't survive anyway.
-   *
-   * @param $project
-   */
-  function mimicReport($project) {
-    $this->output .= '<p>Project: ' . $project . "<br />\n";
-    $this->output .= 'Version: ' . $this->projects[$project]['version'] . '<br />';
-    $this->output .= '[insert stats] <br />';
-    $this->output .= '</p>';
   }
 
   /**
@@ -140,6 +133,11 @@ class LocalizeParser {
     $doc->strictErrorChecking = FALSE;
     $doc->loadHTML($contents);
     $xml = simplexml_import_dom($doc);
-    $this->projects_raw = $xml->xpath('body/div[2]/pre/a[position()>5]');
+
+    // Add the offset to avoid unwanted links.
+    $xpath_interval_bottom = $this->interval_bottom + 5;
+    $xpath_interval_top = $this->interval_top + 5;
+    $xpath_query = 'body/div[2]/pre/a[position()>' . $xpath_interval_bottom . ' and position()<=' . $xpath_interval_top . ']';
+    $this->projects_raw = $xml->xpath($xpath_query);
   }
 }
