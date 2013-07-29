@@ -13,7 +13,7 @@ class LocalizeProcessor {
     require_once __DIR__ . '/../../web/l10n_update/l10n_update.locale.inc';
     require_once DRUPAL_ROOT . '/includes/locale.inc';
 
-    $file = (object) array('uri' => $filename);
+    $file = (object) array('uri' => '../downloads/' . $filename);
     _l10n_update_locale_import_read_po('mem-store', $file);
 
     $strings = &drupal_static('_l10n_update_locale_import_one_string:strings', array());
