@@ -1,6 +1,7 @@
 <?php
 
 use LdoParser\LocalizeParser;
+use LdoParser\LocalizeProcessor;
 
 $loader = require_once __DIR__.'/../vendor/autoload.php';
 
@@ -14,6 +15,16 @@ $app->get('/parser/list', function() {
   $output = $parser->getOutput();
 
   return $output;
+});
+
+$app->get('/process/{filename}', function($filename) {
+
+  $processor = new LocalizeProcessor();
+
+  $strings = array_shift($processor->parse_po_file($filename));
+  $similar = $processor->compare_strings($strings);
+  var_dump($similar);
+  return 'ok';
 });
 
 $app['debug'] = TRUE;
