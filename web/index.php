@@ -53,6 +53,7 @@ $app->get('/module/{module_name}', function($module_name) {
   $issue_client = new DrupalIssueClient(array(
     'projects' => $processor->getRawOutput(),
   ));
+//  $output = $issue_client->postIssues();
 
   return $output;
 });
