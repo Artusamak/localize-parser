@@ -19,9 +19,10 @@ class LocalizeParser {
   var $offset;
   var $limit;
 
-  function __construct($offset, $limit) {
-    $this->interval_bottom = $offset;
-    $this->interval_top = $offset + $limit;
+  function __construct($params) {
+    foreach ($params as $key => $value) {
+      $this->$key = $value;
+    }
   }
 
   /**

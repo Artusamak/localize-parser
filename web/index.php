@@ -11,7 +11,10 @@ $loader->add('LdoParser', __DIR__ . '/../src/');
 $app->get('/process/{offset}/{limit}', function($offset = 0, $limit = 5) {
 
   // Fetch the projects matching the current limits.
-  $parser = new LocalizeParser($offset, $limit);
+  $parser = new LocalizeParser(array(
+    'interval_bottom' => $offset,
+    'interval_top' => $offset + $limit,
+  ));
   $parser->buildProjects();
 
   $processor = new LocalizeProcessor($parser->getProjects(), $offset, $limit);
