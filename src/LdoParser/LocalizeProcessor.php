@@ -58,7 +58,7 @@ class LocalizeProcessor {
       $similar = $this->compareStrings($strings);
 
       $this->output[$project_name] = array(
-        'project' => $project_name,
+        'project' => $project['title'],
         'results' => $similar,
       );
     }

@@ -1,0 +1,18 @@
+{% if project_data is not empty %}
+<h2>Translation report</h2>
+<h3>Project <em>{{ project_title }}</em> </h3>
+<div class="project">
+    <p>We generated for you a report based on an analyze of the strings in your module.This report is there in order to ease the work of the translation teams, they often bump into strings that are really alike (for instance the same sentence with a period at the end or not) and have to translate them twice!<br />
+    "We hope that you will use this report to unify those strings.</p>
+    <p>Here is a list of strings that we identified to be really close or that sounds really alike.</p>
+
+    {% for key, similar_set in project_data %}
+        {% if similar_set|length > 0 %}
+            {% for identical in similar_set %}
+                <div class="entry">{{ identical[0] }} <span class="amp">&</span> {{ identical[1] }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+{% else %}
+    <p>The project <em>{{ project_title }}</em> doesn't have similar strings. Perfect for the translators!</p>
+{% endif %}

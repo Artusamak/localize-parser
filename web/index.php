@@ -14,7 +14,11 @@ $app = new Silex\Application();
 $loader->add('LdoParser', __DIR__ . '/../src/');
 $loader->add('LdoDrupal', __DIR__ . '/../src/');
 
-$app->get('/process/{offset}/{limit}', function($offset = 0, $limit = 5) {
+$app->register(new Silex\Provider\TwigServiceProvider(), array(
+  'twig.path' => __DIR__.'/views',
+));
+
+$app->get('/process/{offset}/{limit}', function($offset = 0, $limit = 5) use ($app) {
   // Fetch the projects matching the current limits.
   $parser = new LocalizeParser(array(
     'interval_bottom' => $offset,
@@ -29,6 +33,7 @@ $app->get('/process/{offset}/{limit}', function($offset = 0, $limit = 5) {
   ));
   $processor->parseItems();
 
+
   $output = $processor->getFormattedOutput();
 
   $new_offset = $offset + $limit;
@@ -37,7 +42,7 @@ $app->get('/process/{offset}/{limit}', function($offset = 0, $limit = 5) {
   return $output;
 });
 
-$app->get('/module/{module_name}', function($module_name) {
+$app->get('/module/{module_name}', function($module_name, $version = FALSE) use ($app) {
   // Fetch project matching given module name.
   $parser = new LocalizeParser(array(
     'modules' => array($module_name),
@@ -48,7 +53,14 @@ $app->get('/module/{module_name}', function($module_name) {
   ));
   $processor->parseItems();
 
-  $output = $processor->getFormattedOutput();
+  $output = $processor->getRawOutput();
+
+
+  return $app['twig']->render('hello.twig', array(
+    'project_title' => $output[$module_name]['project'],
+    'project_data' => $output[$module_name]['results'],
+  ));
+
 
   $issue_client = new DrupalIssueClient(array(
     'projects' => $processor->getRawOutput(),
