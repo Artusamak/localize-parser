@@ -4,6 +4,8 @@ namespace LdoParser;
 
 class LocalizeProcessor {
 
+  const MIN_STRING_LENGTH = 4;
+
   var $projects = array();
   var $offset = 0;
   var $limit = 5;
@@ -272,25 +274,29 @@ class LocalizeProcessor {
 
     foreach (array_keys($strings) as $index => $string1) {
       $string1 = trim($string1);
-      foreach (array_slice($strings, $index + 1) as $string2 => $translation) {
-        $string2 = trim($string2);
+      if (strlen($string1) >= self::MIN_STRING_LENGTH) {
+        foreach (array_slice($strings, $index + 1) as $string2 => $translation) {
+          $string2 = trim($string2);
+          if (strlen($string2) >= self::MIN_STRING_LENGTH) {
 
-        if (strtolower($string1) == strtolower($string2)) {
-          // (Almost) identical.
-          $result['identical'][] = array($string1, $string2);
-          continue;
-        }
+            if (strtolower($string1) == strtolower($string2)) {
+              // (Almost) identical.
+              $result['identical'][] = array($string1, $string2);
+              continue;
+            }
 
-        if (metaphone($string1) == metaphone($string2)) {
-          // Sound identical.
-          $result['sound_similar'][] = array($string1, $string2);
-          continue;
-        }
+            if (metaphone($string1) == metaphone($string2)) {
+              // Sound identical.
+              $result['sound_similar'][] = array($string1, $string2);
+              continue;
+            }
 
-        similar_text($string1, $string2, $percent);
-        if (round($percent) >= 95) {
-          $result['look_similar'][] = array($string1, $string2);
-          continue;
+            similar_text($string1, $string2, $percent);
+            if (round($percent) >= 95) {
+              $result['look_similar'][] = array($string1, $string2);
+              continue;
+            }
+          }
         }
       }
     }
