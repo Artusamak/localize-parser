@@ -19,6 +19,8 @@ class LocalizeParser {
   var $offset;
   var $limit;
 
+  protected $modules;
+
   function __construct($params) {
     foreach ($params as $key => $value) {
       $this->$key = $value;
@@ -59,6 +61,11 @@ class LocalizeParser {
   function downloadProjectsFiles() {
     while(list( , $project) = each($this->projects_raw)) {
       $clean_project_name = substr($project, 0, -1);
+      // If only specific module(s) were requested for processing,
+      // skip everything else.
+      if (!empty($this->modules) && !in_array($clean_project_name, $this->modules)) {
+        continue;
+      }
       $this->buildProjectDetails($clean_project_name);
     }
   }
@@ -136,9 +143,15 @@ class LocalizeParser {
     $xml = simplexml_import_dom($doc);
 
     // Add the offset to avoid unwanted links.
-    $xpath_interval_bottom = $this->interval_bottom + 5;
-    $xpath_interval_top = $this->interval_top + 5;
-    $xpath_query = 'body/div[2]/pre/a[position()>' . $xpath_interval_bottom . ' and position()<=' . $xpath_interval_top . ']';
+    if (!empty($this->interval_bottom) && !empty($this->interval_top)) {
+      $xpath_interval_bottom = $this->interval_bottom + 5;
+      $xpath_interval_top = $this->interval_top + 5;
+      $xpath_query = 'body/div[2]/pre/a[position()>' . $xpath_interval_bottom . ' and position()<=' . $xpath_interval_top . ']';
+    }
+    else {
+      // @TODO: Needs improving, returns some shite now.
+      $xpath_query = 'body/div[2]/pre/a';
+    }
     $this->projects_raw = $xml->xpath($xpath_query);
   }
 }

@@ -9,10 +9,10 @@ class LocalizeProcessor {
   var $limit = 5;
   var $output = '';
 
-  function __construct($projects, $offset, $limit) {
-    $this->projects = $projects;
-    $this->offset = $offset;
-    $this->limit = $limit;
+  function __construct($params) {
+    foreach ($params as $key => $value) {
+      $this->$key = $value;
+    }
   }
 
   function getOutput() {
