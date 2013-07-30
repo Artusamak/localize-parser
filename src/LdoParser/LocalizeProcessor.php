@@ -71,7 +71,7 @@ class LocalizeProcessor {
     $fd = fopen($filepath, "rb"); // File will get closed by PHP on return
     if (!$fd) {
       // @TODO: Should be LocalizeProcessorException.
-      throw new Exception(sprintf('The .po file import failed, because the file "%s" could not be read.', $filename));
+      throw new \Exception(sprintf('The .po file import failed, because the file "%s" could not be read.', $filename));
     }
 
     $context = "COMMENT"; // Parser context: COMMENT, MSGID, MSGID_PLURAL, MSGSTR and MSGSTR_ARR
@@ -99,19 +99,19 @@ class LocalizeProcessor {
           $context = "COMMENT";
         }
         else { // Parse error
-          throw new Exception(sprintf('"The translation file "%s" contains an error: "%s" was expected but not found on line %line.', $filename, $lineno));
+          throw new \Exception(sprintf('"The translation file "%s" contains an error: "%s" was expected but not found on line %line.', $filename, $lineno));
           return FALSE;
         }
       }
       elseif (!strncmp("msgid_plural", $line, 12)) {
         if ($context != "MSGID") { // Must be plural form for current entry
-          throw new Exception(sprintf('The translation file "%s" contains an error: "msgid_plural" was expected but not found on line %d.', $filename, $lineno));
+          throw new \Exception(sprintf('The translation file "%s" contains an error: "msgid_plural" was expected but not found on line %d.', $filename, $lineno));
           return FALSE;
         }
         $line = trim(substr($line, 12));
         $quoted = $this->parseQuoted($line);
         if ($quoted === FALSE) {
-          throw new Exception(sprintf('The translation file "%s" contains a syntax error on line %d.', $filename, $lineno));
+          throw new \Exception(sprintf('The translation file "%s" contains a syntax error on line %d.', $filename, $lineno));
           return FALSE;
         }
         $current["msgid"] = $current["msgid"] . "\0" . $quoted;
@@ -123,13 +123,13 @@ class LocalizeProcessor {
           $current = array();
         }
         elseif ($context == "MSGID") { // Already in this context? Parse error
-          throw new Exception(sprintf('The translation file "%s" contains an error: "msgid" is unexpected on line %d.', $filename, $lineno));
+          throw new \Exception(sprintf('The translation file "%s" contains an error: "msgid" is unexpected on line %d.', $filename, $lineno));
           return FALSE;
         }
         $line = trim(substr($line, 5));
         $quoted = $this->parseQuoted($line);
         if ($quoted === FALSE) {
-          throw new Exception(sprintf('The translation file "%s" contains a syntax error on line %d.', $filename, $lineno));
+          throw new \Exception(sprintf('The translation file "%s" contains a syntax error on line %d.', $filename, $lineno));
           return FALSE;
         }
         $current["msgid"] = $quoted;
@@ -141,13 +141,13 @@ class LocalizeProcessor {
           $current = array();
         }
         elseif (!empty($current["msgctxt"])) { // Already in this context? Parse error
-          throw new Exception(sprintf('The translation file "%s" contains an error: "msgctxt" is unexpected on line %d.', $filename, $lineno));
+          throw new \Exception(sprintf('The translation file "%s" contains an error: "msgctxt" is unexpected on line %d.', $filename, $lineno));
           return FALSE;
         }
         $line = trim(substr($line, 7));
         $quoted = $this->parseQuoted($line);
         if ($quoted === FALSE) {
-          throw new Exception(sprintf('The translation file "%s" contains a syntax error on line %d.', $filename, $lineno));
+          throw new \Exception(sprintf('The translation file "%s" contains a syntax error on line %d.', $filename, $lineno));
           return FALSE;
         }
         $current["msgctxt"] = $quoted;
@@ -155,11 +155,11 @@ class LocalizeProcessor {
       }
       elseif (!strncmp("msgstr[", $line, 7)) {
         if (($context != "MSGID") && ($context != "MSGCTXT") && ($context != "MSGID_PLURAL") && ($context != "MSGSTR_ARR")) { // Must come after msgid, msgxtxt, msgid_plural, or msgstr[]
-          throw new Exception(sprintf('The translation file "%s" contains an error: "msgstr[]" is unexpected on line %d.', $filename, $lineno));
+          throw new \Exception(sprintf('The translation file "%s" contains an error: "msgstr[]" is unexpected on line %d.', $filename, $lineno));
           return FALSE;
         }
         if (strpos($line, "]") === FALSE) {
-          throw new Exception(sprintf('The translation file "%s" contains a syntax error on line %d.', $filename, $lineno));
+          throw new \Exception(sprintf('The translation file "%s" contains a syntax error on line %d.', $filename, $lineno));
           return FALSE;
         }
         $frombracket = strstr($line, "[");
@@ -167,7 +167,7 @@ class LocalizeProcessor {
         $line = trim(strstr($line, " "));
         $quoted = $this->parseQuoted($line);
         if ($quoted === FALSE) {
-          throw new Exception(sprintf('The translation file "%s" contains a syntax error on line %d.', $filename, $lineno));
+          throw new \Exception(sprintf('The translation file "%s" contains a syntax error on line %d.', $filename, $lineno));
           return FALSE;
         }
         $current["msgstr"][$plural] = $quoted;
@@ -175,13 +175,13 @@ class LocalizeProcessor {
       }
       elseif (!strncmp("msgstr", $line, 6)) {
         if (($context != "MSGID") && ($context != "MSGCTXT")) {   // Should come just after a msgid or msgctxt block
-          throw new Exception(sprintf('The translation file "%s" contains an error: "msgstr" is unexpected on line %d.', $filename, $lineno));
+          throw new \Exception(sprintf('The translation file "%s" contains an error: "msgstr" is unexpected on line %d.', $filename, $lineno));
           return FALSE;
         }
         $line = trim(substr($line, 6));
         $quoted = $this->parseQuoted($line);
         if ($quoted === FALSE) {
-          throw new Exception(sprintf('The translation file "%s" contains a syntax error on line %d.', $filename, $lineno));
+          throw new \Exception(sprintf('The translation file "%s" contains a syntax error on line %d.', $filename, $lineno));
           return FALSE;
         }
         $current["msgstr"] = $quoted;
@@ -190,7 +190,7 @@ class LocalizeProcessor {
       elseif ($line != "") {
         $quoted = $this->parseQuoted($line);
         if ($quoted === FALSE) {
-          throw new Exception(sprintf('The translation file "%s" contains a syntax error on line %d.', $filename, $lineno));
+          throw new \Exception(sprintf('The translation file "%s" contains a syntax error on line %d.', $filename, $lineno));
           return FALSE;
         }
         if (($context == "MSGID") || ($context == "MSGID_PLURAL")) {
@@ -206,7 +206,7 @@ class LocalizeProcessor {
           $current["msgstr"][$plural] .= $quoted;
         }
         else {
-          throw new Exception(sprintf('The translation file "%s" contains an error: there is an unexpected string on line %d.', $filename, $lineno));
+          throw new \Exception(sprintf('The translation file "%s" contains an error: there is an unexpected string on line %d.', $filename, $lineno));
           return FALSE;
         }
       }
@@ -217,7 +217,7 @@ class LocalizeProcessor {
       $strings[isset($current['msgctxt']) ? $current['msgctxt'] : ''][$current['msgid']] = $current['msgstr'];
     }
     elseif ($context != "COMMENT") {
-      throw new Exception(sprintf('The translation file "%s" ended unexpectedly at line %d.', $filename, $lineno));
+      throw new \Exception(sprintf('The translation file "%s" ended unexpectedly at line %d.', $filename, $lineno));
       return FALSE;
     }
 
