@@ -8,6 +8,7 @@ $loader = require_once __DIR__ . '/../vendor/autoload.php';
 
 $app = new Silex\Application();
 $loader->add('LdoParser', __DIR__ . '/../src/');
+$loader->add('LdoDrupal', __DIR__ . '/../src/');
 
 $app->get('/process/{offset}/{limit}', function($offset = 0, $limit = 5) {
 
@@ -47,6 +48,10 @@ $app->get('/module/{module_name}', function($module_name) {
   $processor->parseItems();
 
   $output = $processor->getFormattedOutput();
+
+  $issue_client = new DrupalIssueClient(array(
+    'projects' => $processor->getRawOutput(),
+  ));
 
   return $output;
 });
