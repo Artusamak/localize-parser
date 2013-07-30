@@ -2,6 +2,7 @@
 
 use LdoParser\LocalizeParser;
 use LdoParser\LocalizeProcessor;
+use LdoDrupal\DrupalIssueClient;
 
 $loader = require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -24,7 +25,7 @@ $app->get('/process/{offset}/{limit}', function($offset = 0, $limit = 5) {
   ));
   $processor->parseItems();
 
-  $output = $processor->getOutput();
+  $output = $processor->getFormattedOutput();
 
   $new_offset = $offset + $limit;
   $new_limit = $limit;
@@ -45,7 +46,8 @@ $app->get('/module/{module_name}', function($module_name) {
   ));
   $processor->parseItems();
 
-  $output = $processor->getOutput();
+  $output = $processor->getFormattedOutput();
+
   return $output;
 });
 

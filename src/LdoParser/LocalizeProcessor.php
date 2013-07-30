@@ -15,8 +15,29 @@ class LocalizeProcessor {
     }
   }
 
-  function getOutput() {
+  public function getRawOutput() {
     return $this->output;
+  }
+
+  public function getFormattedOutput() {
+    $output = '';
+    foreach ($this->output as $project_name => $project_data) {
+      if (!empty($project_data['results'])) {
+        foreach ($project_data['results'] as $key => $similar_set) {
+          $output .= '<p>Project ' . $project_name . ': <br />';
+          if (count($similar_set) > 0) {
+            $output .= $key . ' identical strings: <br />';
+            $output .= '<ul>';
+            foreach ($similar_set as $identical) {
+              $output .= '<li>' . implode(' & ', $identical) . '</li>';
+            }
+            $output .= '</ul>';
+          }
+          $output .= '</p>';
+        }
+      }
+    }
+    return $output;
   }
 
   function parseItems() {
@@ -29,19 +50,10 @@ class LocalizeProcessor {
       $strings = reset($strings);
       $similar = $this->compareStrings($strings);
 
-      // Do something smarter with the result here. :P
-      foreach ($similar as $key => $similar_set) {
-        $this->output .= '<p>Project ' . $project_name . ': <br />';
-        if (count($similar[$key]) > 0) {
-          $this->output .= $key . ' identical strings: <br />';
-          $this->output .= '<ul>';
-          foreach ($similar[$key] as $identical) {
-            $this->output .= '<li>' . implode(' & ', $identical) . '</li>';
-          }
-          $this->output .= '</ul>';
-        }
-        $this->output .= '</p>';
-      }
+      $this->output[$project_name] = array(
+        'project' => $project_name,
+        'results' => $similar,
+      );
     }
   }
 
