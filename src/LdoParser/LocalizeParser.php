@@ -41,6 +41,11 @@ class LocalizeParser {
     return $this->projects;
   }
 
+  function buildProject($project) {
+    $this->buildProjectDetails($project);
+    return array($project => $this->projects[$project]);
+  }
+
   /**
    * Builds the projects list and download the projects po files.
    */
@@ -80,28 +85,15 @@ class LocalizeParser {
    */
   function buildProjectDetails($project) {
     // Prepare the download url of a project.
-    $version = $this->fetchProjectVersion($project);
+    $metadata = $this->fetchProjectMetadata($project);
+
+    $this->projects[$project]['version'] = $metadata['version'];
+    $this->projects[$project]['title'] = $metadata['title'];
+
+    $translation_file = $this->downloadTranslationFile($project, $metadata['version']);
 
 
-    // Prepare the transaction URL.
-    // Extracts the return code from headers to check if the file exists.
-    // It can be 200 or 404 e.g: HTTP/1.1 404 Not Found
-    $translation_url = $this->base_url . $project . '/' . $project . '-' . $version . '.' . $this->language . '.po';
-    $headers = get_headers($translation_url);
-    $code = array_slice(explode(' ', array_shift($headers)), 1, -1);
-
-    // Only look for 200 code as answer.
-    if ($code[0] == '200') {
-      // Download the file in our downloads folder.
-      // @TODO decide what to do of processed files.
-      $translation_content = file_get_contents($translation_url);
-      $translation_file = __DIR__ . '/../../downloads/' . $project . '-' . $version . '.po';
-      $f = fopen($translation_file, 'w+');
-      if ($f) {
-        fwrite($f, $translation_content);
-        fclose($f);
-      }
-    }
+    return $translation_file;
   }
 
   /**
@@ -113,14 +105,17 @@ class LocalizeParser {
    * @return mixed
    *   Returns the string of the project's version.
    */
-  function fetchProjectVersion($project_name) {
+  function fetchProjectMetadata($project_name) {
     $update_url = $this->update_url . $project_name . '/' . $this->major_version;
     $xml = simplexml_load_file($update_url);
 
     $version = (string) $xml->releases->release[0]->version;
-    $this->projects[$project_name]['version'] = $version;
+    $title = (string) $xml->title;
 
-    return $version;
+    return array(
+      'version' => $version,
+      'title' => $title,
+    );
   }
 
   /**
@@ -153,5 +148,35 @@ class LocalizeParser {
       $xpath_query = 'body/div[2]/pre/a';
     }
     $this->projects_raw = $xml->xpath($xpath_query);
+  }
+
+  /**
+   * @param $project
+   * @param $version
+   * @return string
+   */
+  public function downloadTranslationFile($project, $version) {
+    // Prepare the transaction URL.
+    // Extracts the return code from headers to check if the file exists.
+    // It can be 200 or 404 e.g: HTTP/1.1 404 Not Found
+    $translation_url = $this->base_url . $project . '/' . $project . '-' . $version . '.' . $this->language . '.po';
+    $headers = get_headers($translation_url);
+    $code = array_slice(explode(' ', array_shift($headers)), 1, -1);
+
+    // Only look for 200 code as answer.
+    if ($code[0] == '200') {
+      // Download the file in our downloads folder.
+      // @TODO decide what to do of processed files.
+      $translation_content = file_get_contents($translation_url);
+      $translation_file = __DIR__ . '/../../downloads/' . $project . '-' . $version . '.po';
+      $f = fopen($translation_file, 'w+');
+      if ($f) {
+        fwrite($f, $translation_content);
+        fclose($f);
+        return $translation_file;
+      }
+      return $translation_file;
+    }
+    return FALSE;
   }
 }

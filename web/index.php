@@ -1,5 +1,9 @@
 <?php
 
+// @TODO:
+// * Refactor the Parser to be able to generate the po files on one side
+//   and prepare a po file for the processor in another side.
+
 use LdoParser\LocalizeParser;
 use LdoParser\LocalizeProcessor;
 use LdoDrupal\DrupalIssueClient;
@@ -11,7 +15,6 @@ $loader->add('LdoParser', __DIR__ . '/../src/');
 $loader->add('LdoDrupal', __DIR__ . '/../src/');
 
 $app->get('/process/{offset}/{limit}', function($offset = 0, $limit = 5) {
-
   // Fetch the projects matching the current limits.
   $parser = new LocalizeParser(array(
     'interval_bottom' => $offset,
@@ -35,15 +38,13 @@ $app->get('/process/{offset}/{limit}', function($offset = 0, $limit = 5) {
 });
 
 $app->get('/module/{module_name}', function($module_name) {
-
   // Fetch project matching given module name.
   $parser = new LocalizeParser(array(
     'modules' => array($module_name),
   ));
-  $parser->buildProjects();
 
   $processor = new LocalizeProcessor(array(
-    'projects' => $parser->getProjects(),
+    'projects' => $parser->buildProject($module_name),
   ));
   $processor->parseItems();
 

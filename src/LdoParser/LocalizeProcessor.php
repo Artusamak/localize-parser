@@ -24,7 +24,7 @@ class LocalizeProcessor {
     foreach ($this->output as $project_name => $project_data) {
       if (!empty($project_data['results'])) {
         foreach ($project_data['results'] as $key => $similar_set) {
-          $output .= '<p>Project ' . $project_name . ': <br />';
+          $output .= '<div class="project"><p>Project <em>' . $this->projects[$project_name]['title'] . '</em>: <br />';
           if (count($similar_set) > 0) {
             $output .= $key . ' identical strings: <br />';
             $output .= '<ul>';
@@ -33,8 +33,11 @@ class LocalizeProcessor {
             }
             $output .= '</ul>';
           }
-          $output .= '</p>';
+          $output .= '</p></div>';
         }
+      }
+      else {
+        $output .= '<p>The project <em>' . $this->projects[$project_name]['title'] . '</em> doesn\'t have similar strings. Perfect for the translators!</p>';
       }
     }
     return $output;
