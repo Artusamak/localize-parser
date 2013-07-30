@@ -1,3 +1,5 @@
+<link href="{{ app.request.basepath }}/css/file.css" rel="stylesheet" media="all" />
+
 {% if project_data is not empty %}
 <h2>Translation report</h2>
 <h3>Project <em>{{ project_title }}</em> </h3>
@@ -9,7 +11,7 @@
     {% for key, similar_set in project_data %}
         {% if similar_set|length > 0 %}
             {% for identical in similar_set %}
-                <div class="entry">{{ identical[0] }} <span class="amp">&</span> {{ identical[1] }}</div>
+                <div class="entry"><span class="top"></span>{{ identical[0] }} <span class="amp">&</span> {{ identical[1] }}<span class="bottom"></span></div>
             {% endfor %}
         {% endif %}
     {% endfor %}

@@ -1,0 +1,40 @@
+body {
+    font-family: Verdana;
+    font-size: 13px;
+    width: 600px;
+}
+
+h2 {
+    font-size: 26px;
+}
+
+h3 {
+    font-size: 20px;
+}
+
+.project .entry {
+    font-size: 16px;
+    font-style: italic;
+    position: relative;
+    margin: auto auto 1em;
+    text-align: center;
+}
+.project .entry .top,
+.project .entry .bottom {
+    background: transparent url('images/quote.png') no-repeat 0 0;
+    display: block;
+    float: left;
+    height: 15px;
+    width: 15px;
+}
+
+.project .entry .bottom {
+    background: transparent url('images/quote_r.png') no-repeat 0 0;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+.project div.entry .amp {
+    font-size: 40px;
+}

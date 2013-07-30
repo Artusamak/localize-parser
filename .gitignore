@@ -1,0 +1,5 @@
+# Ignore PHPstorm files.
+.idea
+
+# Ignore downloaded po files.
+downloads/*
