@@ -18,15 +18,16 @@ class LocalizeProcessor {
   function getOutput() {
     return $this->output;
   }
+
   function parseItems() {
     foreach ($this->projects as $project_name => $project) {
-      $strings = $this->parse_po_file($project_name . '-' . $project['version'] . '.po');
+      $strings = $this->parsePoFile($project_name . '-' . $project['version'] . '.po');
       // This might need to be checked, as parsing libraries-7.x-2.1.fr.po returns
       // an array of arrays, with the only main key being an empty string (hence the
       // call to reset() below) - could this be different for other (more
       // complicated) files?
       $strings = reset($strings);
-      $similar = $this->compare_strings($strings);
+      $similar = $this->compareStrings($strings);
 
       // Do something smarter with the result here. :P
       foreach ($similar as $key => $similar_set) {
@@ -51,7 +52,7 @@ class LocalizeProcessor {
    * @return array|bool
    * @throws Exception
    */
-  public function parse_po_file($filename) {
+  public function parsePoFile($filename) {
     $strings = array();
 
     $filepath = realpath('../downloads/' . $filename);
@@ -96,7 +97,7 @@ class LocalizeProcessor {
           return FALSE;
         }
         $line = trim(substr($line, 12));
-        $quoted = $this->parse_quoted($line);
+        $quoted = $this->parseQuoted($line);
         if ($quoted === FALSE) {
           throw new Exception(sprintf('The translation file "%s" contains a syntax error on line %d.', $filename, $lineno));
           return FALSE;
@@ -114,7 +115,7 @@ class LocalizeProcessor {
           return FALSE;
         }
         $line = trim(substr($line, 5));
-        $quoted = $this->parse_quoted($line);
+        $quoted = $this->parseQuoted($line);
         if ($quoted === FALSE) {
           throw new Exception(sprintf('The translation file "%s" contains a syntax error on line %d.', $filename, $lineno));
           return FALSE;
@@ -132,7 +133,7 @@ class LocalizeProcessor {
           return FALSE;
         }
         $line = trim(substr($line, 7));
-        $quoted = $this->parse_quoted($line);
+        $quoted = $this->parseQuoted($line);
         if ($quoted === FALSE) {
           throw new Exception(sprintf('The translation file "%s" contains a syntax error on line %d.', $filename, $lineno));
           return FALSE;
@@ -152,7 +153,7 @@ class LocalizeProcessor {
         $frombracket = strstr($line, "[");
         $plural = substr($frombracket, 1, strpos($frombracket, "]") - 1);
         $line = trim(strstr($line, " "));
-        $quoted = $this->parse_quoted($line);
+        $quoted = $this->parseQuoted($line);
         if ($quoted === FALSE) {
           throw new Exception(sprintf('The translation file "%s" contains a syntax error on line %d.', $filename, $lineno));
           return FALSE;
@@ -166,7 +167,7 @@ class LocalizeProcessor {
           return FALSE;
         }
         $line = trim(substr($line, 6));
-        $quoted = $this->parse_quoted($line);
+        $quoted = $this->parseQuoted($line);
         if ($quoted === FALSE) {
           throw new Exception(sprintf('The translation file "%s" contains a syntax error on line %d.', $filename, $lineno));
           return FALSE;
@@ -175,7 +176,7 @@ class LocalizeProcessor {
         $context = "MSGSTR";
       }
       elseif ($line != "") {
-        $quoted = $this->parse_quoted($line);
+        $quoted = $this->parseQuoted($line);
         if ($quoted === FALSE) {
           throw new Exception(sprintf('The translation file "%s" contains a syntax error on line %d.', $filename, $lineno));
           return FALSE;
@@ -214,7 +215,7 @@ class LocalizeProcessor {
   /**
    * Parses a string in quotes.
    *
-   * Copy of l10n_update module's parse_quoted() function.
+   * Copy of l10n_update module's parseQuoted() function.
    *
    * @param $string
    *   A string specified with enclosing quotes.
@@ -222,7 +223,7 @@ class LocalizeProcessor {
    * @return
    *   The string parsed from inside the quotes.
    */
-  private function parse_quoted($string) {
+  private function parseQuoted($string) {
     if (substr($string, 0, 1) != substr($string, -1, 1)) {
       return FALSE;   // Start and end quotes must be the same
     }
@@ -245,7 +246,7 @@ class LocalizeProcessor {
    * @param array $strings
    * @return array
    */
-  public function compare_strings($strings) {
+  public function compareStrings($strings) {
     $result = array();
 
     if (isset($strings[''])) {
@@ -270,7 +271,7 @@ class LocalizeProcessor {
         }
 
         similar_text($string1, $string2, $percent);
-        if (round($percent) >= 90) {
+        if (round($percent) >= 95) {
           $result['look_similar'][] = array($string1, $string2);
           continue;
         }
