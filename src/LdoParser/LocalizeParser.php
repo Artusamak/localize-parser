@@ -138,15 +138,10 @@ class LocalizeParser {
     $xml = simplexml_import_dom($doc);
 
     // Add the offset to avoid unwanted links.
-    if (!empty($this->interval_bottom) && !empty($this->interval_top)) {
-      $xpath_interval_bottom = $this->interval_bottom + 5;
-      $xpath_interval_top = $this->interval_top + 5;
-      $xpath_query = 'body/div[2]/pre/a[position()>' . $xpath_interval_bottom . ' and position()<=' . $xpath_interval_top . ']';
-    }
-    else {
-      // @TODO: Needs improving, returns some shite now.
-      $xpath_query = 'body/div[2]/pre/a';
-    }
+    $xpath_interval_bottom = $this->interval_bottom + 5;
+    $xpath_interval_top = $this->interval_top + 5;
+    $xpath_query = 'body/div[2]/pre/a[position()>' . $xpath_interval_bottom . ' and position()<=' . $xpath_interval_top . ']';
+
     $this->projects_raw = $xml->xpath($xpath_query);
   }
 

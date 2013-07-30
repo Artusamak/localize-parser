@@ -23,17 +23,19 @@ class LocalizeProcessor {
     $output = '';
     foreach ($this->output as $project_name => $project_data) {
       if (!empty($project_data['results'])) {
+        $output .= '<h2>Translation report</h2>';
+        $output .= '<h3>Project <em>' . $this->projects[$project_name]['title'] . '</em>: </h3>';
+        $output .= '<div class="project">';
+        $output .= "<p>We generated for you a report based on an analyze of the strings in your module.This report is there in order to ease the work of the translation teams, they often bump into strings that are really alike (for instance the same sentence with a period at the end or not) and have to translate them twice!<br />";
+        $output .= "We hope that you will use this report to unify those strings.</p>";
+        $output .= "<p>Here is a list of strings that we identified to be really close or that sounds really alike.</p>";
+
         foreach ($project_data['results'] as $key => $similar_set) {
-          $output .= '<div class="project"><p>Project <em>' . $this->projects[$project_name]['title'] . '</em>: <br />';
           if (count($similar_set) > 0) {
-            $output .= $key . ' identical strings: <br />';
-            $output .= '<ul>';
             foreach ($similar_set as $identical) {
-              $output .= '<li>' . implode(' & ', $identical) . '</li>';
+              $output .= '<div class="entry">' . $identical[0] . ' <span class="amp">&</span> ' . $identical[1] . '</div>';
             }
-            $output .= '</ul>';
           }
-          $output .= '</p></div>';
         }
       }
       else {
