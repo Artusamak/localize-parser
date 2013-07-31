@@ -4,15 +4,21 @@
 // * Refactor the Parser to be able to generate the po files on one side
 //   and prepare a po file for the processor in another side.
 
+use Igorw\Silex\ConfigServiceProvider;
 use LdoParser\LocalizeParser;
 use LdoParser\LocalizeProcessor;
 use LdoDrupal\DrupalIssueClient;
 
 $loader = require_once __DIR__ . '/../vendor/autoload.php';
-
-$app = new Silex\Application();
+$loader->add('ConfigServiceProvider', __DIR__ . '/../vendor/');
 $loader->add('LdoParser', __DIR__ . '/../src/');
 $loader->add('LdoDrupal', __DIR__ . '/../src/');
+
+$app = new Silex\Application();
+
+$env = getenv('APP_ENV') ?: 'dev';
+$config_provider = new Igorw\Silex\ConfigServiceProvider(__DIR__ . "/../config/$env.json");
+$app->register($config_provider);
 
 $app->get('/process/{offset}/{limit}', function($offset = 0, $limit = 5) {
   // Fetch the projects matching the current limits.

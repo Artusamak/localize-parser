@@ -1,0 +1,9 @@
+{
+  'drupal_org_login_url': 'https://drupal.org/user/login',
+  'drupal_org_new_issue_url': 'new_issue_url',
+
+  'drupal_org_username': 'maciej.zgadzaj',
+  'drupal_org_password': 'password',
+
+  'min_string_length_for_comparison': 4
+}
