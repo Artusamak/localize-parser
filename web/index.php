@@ -59,7 +59,7 @@ $app->get('/module/{module_name}/{version}', function($module_name, $version) us
     $module = $parser->buildModule($module_name);
   }
   else {
-    $module = array('version' => $version, 'title' => $processor->getModuleTitle($module_name, $version));
+    $module = array('version' => $version);
   }
 
   // Do the processing.
@@ -79,7 +79,7 @@ $app->get('/module/{module_name}/{version}', function($module_name, $version) us
 //    'projects' => $processor->getRawData(),
 //  ));
 //  $output = $issue_client->postIssues();
-  
+
   return $output;
 })
 ->value('version', FALSE);

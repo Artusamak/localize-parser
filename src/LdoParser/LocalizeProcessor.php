@@ -18,16 +18,6 @@ class LocalizeProcessor {
   }
 
   /**
-   * Gets a module title from it's machine name and version.
-   *
-   * @return string
-   *   Module title.
-   */
-  public function getModuleTitle($module_name, $version) {
-    return 'Drupal commerce';
-  }
-
-  /**
    * Getter for the data attribute.
    *
    * @return array()
@@ -79,7 +69,7 @@ class LocalizeProcessor {
     $similar = $this->compareStrings($strings);
 
     $this->data[$module_name] = array(
-      'project' => $module['title'],
+      'project' => $parsed['info']['Project-Id-Version'],
       'results' => $similar,
     );
   }
