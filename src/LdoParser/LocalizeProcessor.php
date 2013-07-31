@@ -70,12 +70,12 @@ class LocalizeProcessor {
   }
 
   public function parseItem($module_name, $module) {
-    $strings = $this->parsePoFile($module_name . '-' . $module['version'] . '.po');
+    $parsed = $this->parsePoFile($module_name . '-' . $module['version'] . '.po');
     // This might need to be checked, as parsing libraries-7.x-2.1.fr.po returns
     // an array of arrays, with the only main key being an empty string (hence the
     // call to reset() below) - could this be different for other (more
     // complicated) files?
-    $strings = reset($strings);
+    $strings = reset($parsed['strings']);
     $similar = $this->compareStrings($strings);
 
     $this->data[$module_name] = array(
@@ -92,7 +92,7 @@ class LocalizeProcessor {
    * @throws Exception
    */
   private function parsePoFile($filename) {
-    $strings = array();
+    $strings = $info = array();
 
     $filepath = realpath('../downloads/' . $filename);
     $fd = fopen($filepath, "rb"); // File will get closed by PHP on return
@@ -236,6 +236,12 @@ class LocalizeProcessor {
           throw new \Exception(sprintf('The translation file "%s" contains an error: there is an unexpected string on line %d.', $filename, $lineno));
           return FALSE;
         }
+        // When both msgid and msgstr are empty, we are in the PO file "header",
+        // providing some details about related project and the file itself.
+        if (empty($current['msgid'])) {
+          list($key, $value) = array_map('trim', explode(': ', $this->parseQuoted($line)));
+          $info[$key] = $value;
+        }
       }
     }
 
@@ -248,7 +254,16 @@ class LocalizeProcessor {
       return FALSE;
     }
 
-    return $strings;
+    if (!empty($info['Project-Id-Version'])) {
+      preg_match('/(.*) \((.*)\)/', $info['Project-Id-Version'], $matches);
+      $info['Project-Id'] = $matches[1];
+      $info['Project-Version'] = $matches[2];
+    }
+
+    return array(
+      'info' => $info,
+      'strings' => $strings,
+    );
   }
 
   /**
