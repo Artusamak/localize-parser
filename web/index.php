@@ -59,7 +59,7 @@ $app->get('/module/{module_name}/{version}', function($module_name, $version) us
     $module = $parser->buildModule($module_name);
   }
   else {
-    $module = array('version' => $version, 'title' => $processor->getProjectTitle($module_name, $version));
+    $module = array('version' => $version, 'title' => $processor->getModuleTitle($module_name, $version));
   }
 
   // Do the processing.

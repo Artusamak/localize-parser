@@ -6,7 +6,7 @@ class LocalizeProcessor {
 
   const MIN_STRING_LENGTH = 4;
 
-  var $projects = array();
+  var $modules = array();
   var $offset = 0;
   var $limit = 5;
   var $data = '';
@@ -18,12 +18,12 @@ class LocalizeProcessor {
   }
 
   /**
-   * Gets a project title from it's machine name and version.
+   * Gets a module title from it's machine name and version.
    *
    * @return string
-   *   Project title.
+   *   Module title.
    */
-  public function getProjectTitle($project_name, $version) {
+  public function getModuleTitle($module_name, $version) {
     return 'Drupal commerce';
   }
 
@@ -39,16 +39,16 @@ class LocalizeProcessor {
 
   public function getFormattedOutput() {
     $output = '';
-    foreach ($this->data as $project_name => $project_data) {
-      if (!empty($project_data['results'])) {
+    foreach ($this->data as $module_name => $module_data) {
+      if (!empty($module_data['results'])) {
         $output .= '<h2>Translation report</h2>';
-        $output .= '<h3>Project <em>' . $this->projects[$project_name]['title'] . '</em>: </h3>';
+        $output .= '<h3>Project <em>' . $this->modules[$module_name]['title'] . '</em>: </h3>';
         $output .= '<div class="project">';
         $output .= "<p>We generated for you a report based on an analyze of the strings in your module.This report is there in order to ease the work of the translation teams, they often bump into strings that are really alike (for instance the same sentence with a period at the end or not) and have to translate them twice!<br />";
         $output .= "We hope that you will use this report to unify those strings.</p>";
         $output .= "<p>Here is a list of strings that we identified to be really close or that sounds really alike.</p>";
 
-        foreach ($project_data['results'] as $key => $similar_set) {
+        foreach ($module_data['results'] as $key => $similar_set) {
           if (count($similar_set) > 0) {
             foreach ($similar_set as $identical) {
               $output .= '<div class="entry">' . $identical[0] . ' <span class="amp">&</span> ' . $identical[1] . '</div>';
@@ -57,20 +57,20 @@ class LocalizeProcessor {
         }
       }
       else {
-        $output .= '<p>The project <em>' . $this->projects[$project_name]['title'] . '</em> doesn\'t have similar strings. Perfect for the translators!</p>';
+        $output .= '<p>The project <em>' . $this->modules[$module_name]['title'] . '</em> doesn\'t have similar strings. Perfect for the translators!</p>';
       }
     }
     return $output;
   }
 
   public function parseItems() {
-    foreach ($this->projects as $project_name => $project) {
-      $this->parseItem($project_name, $project);
+    foreach ($this->modules as $module_name => $module) {
+      $this->parseItem($module_name, $module);
     }
   }
 
-  public function parseItem($project_name, $project) {
-    $strings = $this->parsePoFile($project_name . '-' . $project['version'] . '.po');
+  public function parseItem($module_name, $module) {
+    $strings = $this->parsePoFile($module_name . '-' . $module['version'] . '.po');
     // This might need to be checked, as parsing libraries-7.x-2.1.fr.po returns
     // an array of arrays, with the only main key being an empty string (hence the
     // call to reset() below) - could this be different for other (more
@@ -78,8 +78,8 @@ class LocalizeProcessor {
     $strings = reset($strings);
     $similar = $this->compareStrings($strings);
 
-    $this->data[$project_name] = array(
-      'project' => $project['title'],
+    $this->data[$module_name] = array(
+      'project' => $module['title'],
       'results' => $similar,
     );
   }
