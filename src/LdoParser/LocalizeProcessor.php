@@ -17,6 +17,7 @@ class LocalizeProcessor {
     }
   }
 
+  // @TODO: Get rid of that if output is public anyway.
   public function getRawOutput() {
     return $this->output;
   }
@@ -50,6 +51,7 @@ class LocalizeProcessor {
   function parseItems() {
     foreach ($this->projects as $project_name => $project) {
       $strings = $this->parsePoFile($project_name . '-' . $project['version'] . '.po');
+      // @TODO: Watch this.
       // This might need to be checked, as parsing libraries-7.x-2.1.fr.po returns
       // an array of arrays, with the only main key being an empty string (hence the
       // call to reset() below) - could this be different for other (more
@@ -292,6 +294,7 @@ class LocalizeProcessor {
             }
 
             similar_text($string1, $string2, $percent);
+            // @TODO: Move that 95 to the config file.
             if (round($percent) >= 95) {
               $result['look_similar'][] = array($string1, $string2);
               continue;
