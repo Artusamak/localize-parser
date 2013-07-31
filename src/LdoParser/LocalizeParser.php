@@ -43,7 +43,7 @@ class LocalizeParser {
 
   function buildProject($project) {
     $this->buildProjectDetails($project);
-    return array($project => $this->projects[$project]);
+    return $this->projects[$project];
   }
 
   /**

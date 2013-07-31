@@ -9,21 +9,37 @@ class LocalizeProcessor {
   var $projects = array();
   var $offset = 0;
   var $limit = 5;
-  var $output = '';
+  var $data = '';
 
-  function __construct($params) {
+  function __construct($params = array()) {
     foreach ($params as $key => $value) {
       $this->$key = $value;
     }
   }
 
-  public function getRawOutput() {
-    return $this->output;
+  /**
+   * Gets a project title from it's machine name and version.
+   *
+   * @return string
+   *   Project title.
+   */
+  public function getProjectTitle($project_name, $version) {
+    return 'Drupal commerce';
+  }
+
+  /**
+   * Getter for the data attribute.
+   *
+   * @return array()
+   *   @TODO document this.
+   */
+  public function getRawData() {
+    return $this->data;
   }
 
   public function getFormattedOutput() {
     $output = '';
-    foreach ($this->output as $project_name => $project_data) {
+    foreach ($this->data as $project_name => $project_data) {
       if (!empty($project_data['results'])) {
         $output .= '<h2>Translation report</h2>';
         $output .= '<h3>Project <em>' . $this->projects[$project_name]['title'] . '</em>: </h3>';
@@ -47,21 +63,25 @@ class LocalizeProcessor {
     return $output;
   }
 
-  function parseItems() {
+  public function parseItems() {
     foreach ($this->projects as $project_name => $project) {
-      $strings = $this->parsePoFile($project_name . '-' . $project['version'] . '.po');
-      // This might need to be checked, as parsing libraries-7.x-2.1.fr.po returns
-      // an array of arrays, with the only main key being an empty string (hence the
-      // call to reset() below) - could this be different for other (more
-      // complicated) files?
-      $strings = reset($strings);
-      $similar = $this->compareStrings($strings);
-
-      $this->output[$project_name] = array(
-        'project' => $project['title'],
-        'results' => $similar,
-      );
+      $this->parseItem($project_name, $project);
     }
+  }
+
+  public function parseItem($project_name, $project) {
+    $strings = $this->parsePoFile($project_name . '-' . $project['version'] . '.po');
+    // This might need to be checked, as parsing libraries-7.x-2.1.fr.po returns
+    // an array of arrays, with the only main key being an empty string (hence the
+    // call to reset() below) - could this be different for other (more
+    // complicated) files?
+    $strings = reset($strings);
+    $similar = $this->compareStrings($strings);
+
+    $this->data[$project_name] = array(
+      'project' => $project['title'],
+      'results' => $similar,
+    );
   }
 
   /**
@@ -71,7 +91,7 @@ class LocalizeProcessor {
    * @return array|bool
    * @throws Exception
    */
-  public function parsePoFile($filename) {
+  private function parsePoFile($filename) {
     $strings = array();
 
     $filepath = realpath('../downloads/' . $filename);
@@ -265,7 +285,7 @@ class LocalizeProcessor {
    * @param array $strings
    * @return array
    */
-  public function compareStrings($strings) {
+  private function compareStrings($strings) {
     $result = array();
 
     if (isset($strings[''])) {
