@@ -11,7 +11,7 @@
     {% for key, similar_set in project_data %}
         {% if similar_set|length > 0 %}
             {% for identical in similar_set %}
-                <div class="entry"><span class="top"></span>{{ identical[0] }} <span class="amp">&</span> {{ identical[1] }}<span class="bottom"></span></div>
+                <div class="entry-wrapper"><div class="entry"><span class="top"></span>{{ identical[0] }} <span class="amp">&</span> {{ identical[1] }}<span class="bottom"></span></div></div>
             {% endfor %}
         {% endif %}
     {% endfor %}

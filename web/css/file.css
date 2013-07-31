@@ -12,9 +12,15 @@ h3 {
     font-size: 20px;
 }
 
+.project .entry-wrapper {
+    text-align: center;
+}
+
 .project .entry {
+    display: inline-table;
     font-size: 16px;
     font-style: italic;
+    padding-right: 18px;
     position: relative;
     margin: auto auto 1em;
     text-align: center;
@@ -25,6 +31,7 @@ h3 {
     display: block;
     float: left;
     height: 15px;
+    margin-left: -20px;
     width: 15px;
 }
 
@@ -37,4 +44,5 @@ h3 {
 
 .project div.entry .amp {
     font-size: 40px;
+    vertical-align: middle;
 }
