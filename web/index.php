@@ -24,11 +24,11 @@ $app->get('/process/{offset}/{limit}', function($offset = 0, $limit = 5) use ($a
     'interval_bottom' => $offset,
     'interval_top' => $offset + $limit,
   ));
-  $parser->buildProjects();
+  $parser->buildModules();
 
   // Process the projects fetched from the parser.
   $processor = new LocalizeProcessor(array(
-    'projects' => $parser->getProjects(),
+    'projects' => $parser->getModules(),
     'offset' => $offset,
     'limit' => $limit,
   ));
@@ -56,14 +56,14 @@ $app->get('/module/{module_name}/{version}', function($module_name, $version) us
   // process.
   // Otherwise just format the version and project title for processing.
   if (!$version) {
-    $project = $parser->buildProject($module_name);
+    $module = $parser->buildModule($module_name);
   }
   else {
-    $project = array('version' => $version, 'title' => $processor->getProjectTitle($module_name, $version));
+    $module = array('version' => $version, 'title' => $processor->getProjectTitle($module_name, $version));
   }
 
   // Do the processing.
-  $processor->parseItem($module_name, $project);
+  $processor->parseItem($module_name, $module);
 
   // Fetch the report data.
   $data = $processor->getRawData();

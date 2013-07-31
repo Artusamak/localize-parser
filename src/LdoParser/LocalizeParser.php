@@ -9,18 +9,19 @@
 namespace LdoParser;
 
 class LocalizeParser {
-  var $base_url = 'http://ftp.drupal.org/files/translations/7.x/';
-  var $update_url = 'http://updates.drupal.org/release-history/';
-  var $language = 'fr';
-  var $major_version = '7.x';
-  var $version = '7.x-1.0';
-  var $projects = array();
-  var $output = '';
-  var $offset;
-  var $limit;
+  private $base_url = 'http://ftp.drupal.org/files/translations/7.x/';
+  private $update_url = 'http://updates.drupal.org/release-history/';
+  private $language = 'fr';
+  private $major_version = '7.x';
+  private $version = '7.x-1.0';
+  private $modules = array();
+  private $offset;
+  private $limit;
+  private $modules_raw;
 
-  protected $modules;
-
+  /**
+   * Lazy contructor to initialize arguments as attributes.
+   */
   function __construct($params) {
     foreach ($params as $key => $value) {
       $this->$key = $value;
@@ -29,33 +30,45 @@ class LocalizeParser {
 
   /**
    * Getter to fetch the generated output.
+   *
+   * @return array()
+   *   Returns an array of the projects metadata, keys are projects
+   *   machine names and values are arrays of version and project title.
+   *   E.g:
+   *   views
+   *     version => 7.x-3.1
+   *     title => Views
+   *   feeds
+   *     version => 7.x-2.1
+   *     title => Feeds
+   *   ...
    */
-  function getOutput() {
-    return $this->output;
+  function getModules() {
+    return $this->modules;
   }
 
   /**
-   * Getter to fetch the generated output.
+   * Retrieves data of a project and download the po file associated.
+   *
+   * @param $project
+   *
+   * @return mixed
    */
-  function getProjects() {
-    return $this->projects;
-  }
-
-  function buildProject($project) {
-    $this->buildProjectDetails($project);
-    return $this->projects[$project];
+  function buildModule($module) {
+    $this->buildModuleDetails($module);
+    return $this->modules[$module];
   }
 
   /**
    * Builds the projects list and download the projects po files.
    */
-  function buildProjects() {
+  function buildModules() {
     // Parse the html dump of the ftp page listing the projects.
     // @see dump at $base_url.
-    $this->prepareProjectsList();
+    $this->prepareModulesList();
 
     // Download the projects translations.
-    $this->downloadProjectsFiles();
+    $this->downloadModulesFiles();
   }
 
   /**
@@ -63,15 +76,15 @@ class LocalizeParser {
    *
    * Given a set of projects, fetch the appropriate .po files.
    */
-  function downloadProjectsFiles() {
-    while(list( , $project) = each($this->projects_raw)) {
-      $clean_project_name = substr($project, 0, -1);
+  function downloadModulesFiles() {
+    while(list( , $module) = each($this->modules_raw)) {
+      $clean_module_name = substr($module, 0, -1);
       // If only specific module(s) were requested for processing,
       // skip everything else.
-      if (!empty($this->modules) && !in_array($clean_project_name, $this->modules)) {
+      if (!empty($this->modules) && !in_array($clean_module_name, $this->modules)) {
         continue;
       }
-      $this->buildProjectDetails($clean_project_name);
+      $this->buildModuleDetails($clean_module_name);
     }
   }
 
@@ -80,17 +93,17 @@ class LocalizeParser {
    *
    * Stores the report output of a given module.
    *
-   * @param $project
+   * @param $module
    *   Project machine name.
    */
-  function buildProjectDetails($project) {
+  function buildModuleDetails($module) {
     // Prepare the download url of a project.
-    $metadata = $this->fetchProjectMetadata($project);
+    $metadata = $this->fetchProjectMetadata($module);
 
-    $this->projects[$project]['version'] = $metadata['version'];
-    $this->projects[$project]['title'] = $metadata['title'];
+    $this->modules[$module]['version'] = $metadata['version'];
+    $this->modules[$module]['title'] = $metadata['title'];
 
-    $translation_file = $this->downloadTranslationFile($project, $metadata['version']);
+    $translation_file = $this->downloadTranslationFile($module, $metadata['version']);
 
 
     return $translation_file;
@@ -99,14 +112,14 @@ class LocalizeParser {
   /**
    * Fetchs the latest version number of a given project.
    *
-   * @param $project_name
+   * @param $module_name
    *   Machine name of a project.
    *
    * @return mixed
    *   Returns the string of the project's version.
    */
-  function fetchProjectMetadata($project_name) {
-    $update_url = $this->update_url . $project_name . '/' . $this->major_version;
+  function fetchProjectMetadata($module_name) {
+    $update_url = $this->update_url . $module_name . '/' . $this->major_version;
     $xml = simplexml_load_file($update_url);
 
     $version = (string) $xml->releases->release[0]->version;
@@ -123,7 +136,7 @@ class LocalizeParser {
    *
    * Stores an array of the projects.
    */
-  function prepareProjectsList() {
+  function prepareModulesList() {
     // Get file content.
     $filename = __DIR__ . '/../../snippet.modules.list.html';
     $f = fopen($filename, 'r');
@@ -142,19 +155,19 @@ class LocalizeParser {
     $xpath_interval_top = $this->interval_top + 5;
     $xpath_query = 'body/div[2]/pre/a[position()>' . $xpath_interval_bottom . ' and position()<=' . $xpath_interval_top . ']';
 
-    $this->projects_raw = $xml->xpath($xpath_query);
+    $this->modules_raw = $xml->xpath($xpath_query);
   }
 
   /**
-   * @param $project
+   * @param $module
    * @param $version
    * @return string
    */
-  public function downloadTranslationFile($project, $version) {
+  public function downloadTranslationFile($module, $version) {
     // Prepare the transaction URL.
     // Extracts the return code from headers to check if the file exists.
     // It can be 200 or 404 e.g: HTTP/1.1 404 Not Found
-    $translation_url = $this->base_url . $project . '/' . $project . '-' . $version . '.' . $this->language . '.po';
+    $translation_url = $this->base_url . $module . '/' . $module . '-' . $version . '.' . $this->language . '.po';
     $headers = get_headers($translation_url);
     $code = array_slice(explode(' ', array_shift($headers)), 1, -1);
 
@@ -163,7 +176,7 @@ class LocalizeParser {
       // Download the file in our downloads folder.
       // @TODO decide what to do of processed files.
       $translation_content = file_get_contents($translation_url);
-      $translation_file = __DIR__ . '/../../downloads/' . $project . '-' . $version . '.po';
+      $translation_file = __DIR__ . '/../../downloads/' . $module . '-' . $version . '.po';
       $f = fopen($translation_file, 'w+');
       if ($f) {
         fwrite($f, $translation_content);
