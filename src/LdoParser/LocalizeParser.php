@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Julien
- * Date: 29/07/13
- * Time: 12:09
- */
 
 namespace LdoParser;
 
@@ -32,7 +26,7 @@ class LocalizeParser {
    * Getter to fetch the generated output.
    *
    * @return array()
-   *   Returns an array of the projects metadata, keys are projects
+   *   Returns an array of the modules metadata, keys are modules
    *   machine names and values are arrays of version and project title.
    *   E.g:
    *   views
@@ -50,40 +44,36 @@ class LocalizeParser {
   /**
    * Retrieves data of a project and download the po file associated.
    *
-   * @param $project
-   *
-   * @return mixed
+   * @param $module_name
+   *   Machine name of the module.
+   * @return array()
+   *   Returns the module information.
    */
-  function buildModule($module) {
-    $this->buildModuleDetails($module);
-    return $this->modules[$module];
+  function buildModule($module_name) {
+    $this->buildModuleDetails($module_name);
+    return $this->modules[$module_name];
   }
 
   /**
-   * Builds the projects list and download the projects po files.
+   * Builds the modules list and download the modules po files.
    */
   function buildModules() {
-    // Parse the html dump of the ftp page listing the projects.
+    // Parse the html dump of the ftp page listing the modules.
     // @see dump at $base_url.
     $this->prepareModulesList();
 
-    // Download the projects translations.
-    $this->downloadModulesFiles();
+    // Download the modules translations.
+    $this->prepareModulesFiles();
   }
 
   /**
-   * Download the projects translations.
+   * Download the modules translations.
    *
-   * Given a set of projects, fetch the appropriate .po files.
+   * Given a set of modules, fetch the appropriate .po files.
    */
-  function downloadModulesFiles() {
+  function prepareModulesFiles() {
     while(list( , $module) = each($this->modules_raw)) {
       $clean_module_name = substr($module, 0, -1);
-      // If only specific module(s) were requested for processing,
-      // skip everything else.
-      if (!empty($this->modules) && !in_array($clean_module_name, $this->modules)) {
-        continue;
-      }
       $this->buildModuleDetails($clean_module_name);
     }
   }
@@ -94,47 +84,50 @@ class LocalizeParser {
    * Stores the report output of a given module.
    *
    * @param $module
-   *   Project machine name.
+   *   Module machine name.
    */
   function buildModuleDetails($module) {
-    // Prepare the download url of a project.
+    // Prepare the download url of a module.
     $metadata = $this->fetchProjectMetadata($module);
 
     $this->modules[$module]['version'] = $metadata['version'];
-    $this->modules[$module]['title'] = $metadata['title'];
+    $this->modules[$module]['title'] = $metadata['title'] . '('. $metadata['version'] .')';
 
-    $translation_file = $this->downloadTranslationFile($module, $metadata['version']);
-
-
-    return $translation_file;
+    // Download the translation file.
+    $this->downloadTranslationFile($module, $metadata['version']);
   }
 
   /**
-   * Fetchs the latest version number of a given project.
+   * Fetches the latest version number of a given project.
    *
    * @param $module_name
    *   Machine name of a project.
    *
-   * @return mixed
-   *   Returns the string of the project's version.
+   * @return array()
+   *   Returns an array with two keys: version of the module and module title.
    */
   function fetchProjectMetadata($module_name) {
     $update_url = $this->update_url . $module_name . '/' . $this->major_version;
     $xml = simplexml_load_file($update_url);
 
-    $version = (string) $xml->releases->release[0]->version;
-    $title = (string) $xml->title;
+    if ($xml) {
+      $version = (string) $xml->releases->release[0]->version;
+      $title = (string) $xml->title;
 
-    return array(
-      'version' => $version,
-      'title' => $title,
-    );
+      return array(
+        'version' => $version,
+        'title' => $title,
+      );
+    }
+    else {
+      throw new \Exception(sprintf('Error while trying to retrieve module "%s" information from drupal.org.', $module_name));
+    }
   }
 
   /**
-   * Parses the html file listing projects.
+   * Parses the html file listing modules.
    *
-   * Stores an array of the projects.
+   * Stores an array of the modules.
    */
   function prepareModulesList() {
     // Get file content.
@@ -159,9 +152,12 @@ class LocalizeParser {
   }
 
   /**
+   * Downloads the po file of a given module in a specific version.
+   *
    * @param $module
+   *   Machine name of the module.
    * @param $version
-   * @return string
+   *   Version of the module (e.g: 7.x-2.1).
    */
   public function downloadTranslationFile($module, $version) {
     // Prepare the transaction URL.
@@ -181,10 +177,13 @@ class LocalizeParser {
       if ($f) {
         fwrite($f, $translation_content);
         fclose($f);
-        return $translation_file;
       }
-      return $translation_file;
+      else {
+        throw new \Exception(sprintf('Error while trying to access the file "%s".', $translation_file));
+      }
     }
-    return FALSE;
+    else {
+      throw new \Exception(sprintf('It looks like nobody is at the url: "%s" (returned code "%d").', $translation_url, $code[0]));
+    }
   }
 }
