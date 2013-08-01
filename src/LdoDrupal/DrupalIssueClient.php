@@ -158,5 +158,4 @@ class DrupalIssueClient {
       throw new \Exception('Unable to log in to Drupal.org.');
     }
   }
-
 }
