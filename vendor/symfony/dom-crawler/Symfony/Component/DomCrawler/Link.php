@@ -120,7 +120,12 @@ class Link
             return $baseUri.$uri;
         }
 
-        $baseUri = preg_replace('#^(.*?//[^/]+)(?:\/.*)?$#', '$1', $this->currentUri);
+        // absolute URL with relative schema
+        if (0 === strpos($uri, '//')) {
+            return preg_replace('#^([^/]*)//.*$#', '$1', $this->currentUri).$uri;
+        }
+
+        $baseUri = preg_replace('#^(.*?//[^/]*)(?:\/.*)?$#', '$1', $this->currentUri);
 
         // absolute path
         if ('/' === $uri[0]) {

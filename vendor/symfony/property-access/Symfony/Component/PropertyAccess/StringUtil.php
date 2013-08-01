@@ -69,6 +69,9 @@ class StringUtil
         // atlases (atlas), kisses (kiss)
         array('ses', 3, true, true, array('s', 'se', 'sis')),
 
+        // objectives (objective), alternative (alternatives)
+        array('sevit', 5, true, true, 'tive'),
+
         // lives (life), wives (wife)
         array('sevi', 4, false, true, 'ife'),
 
@@ -165,13 +168,13 @@ class StringUtil
                         $singulars = array();
 
                         foreach ($newSuffix as $newSuffixEntry) {
-                            $singulars[] = $newBase . ($firstUpper ? ucfirst($newSuffixEntry) : $newSuffixEntry);
+                            $singulars[] = $newBase.($firstUpper ? ucfirst($newSuffixEntry) : $newSuffixEntry);
                         }
 
                         return $singulars;
                     }
 
-                    return $newBase . ($firstUpper ? ucFirst($newSuffix) : $newSuffix);
+                    return $newBase.($firstUpper ? ucFirst($newSuffix) : $newSuffix);
                 }
 
                 // Suffix is longer than word

@@ -45,8 +45,8 @@ class HttpKernelExtension extends \Twig_Extension
     /**
      * Renders a fragment.
      *
-     * @param string $uri     A URI
-     * @param array  $options An array of options
+     * @param string|ControllerReference $uri      A URI as a string or a ControllerReference instance
+     * @param array                      $options  An array of options
      *
      * @return string The fragment content
      *
@@ -54,8 +54,6 @@ class HttpKernelExtension extends \Twig_Extension
      */
     public function renderFragment($uri, $options = array())
     {
-        $options = $this->handler->fixOptions($options);
-
         $strategy = isset($options['strategy']) ? $options['strategy'] : 'inline';
         unset($options['strategy']);
 
@@ -65,9 +63,9 @@ class HttpKernelExtension extends \Twig_Extension
     /**
      * Renders a fragment.
      *
-     * @param string $strategy A strategy name
-     * @param string $uri      A URI
-     * @param array  $options  An array of options
+     * @param string                     $strategy A strategy name
+     * @param string|ControllerReference $uri      A URI as a string or a ControllerReference instance
+     * @param array                      $options  An array of options
      *
      * @return string The fragment content
      *

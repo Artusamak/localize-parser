@@ -6,9 +6,9 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Collator' => $vendorDir . '/symfony/locale/Symfony/Component/Locale/Resources/stubs/Collator.php',
-    'IntlDateFormatter' => $vendorDir . '/symfony/locale/Symfony/Component/Locale/Resources/stubs/IntlDateFormatter.php',
-    'Locale' => $vendorDir . '/symfony/locale/Symfony/Component/Locale/Resources/stubs/Locale.php',
-    'NumberFormatter' => $vendorDir . '/symfony/locale/Symfony/Component/Locale/Resources/stubs/NumberFormatter.php',
+    'Collator' => $vendorDir . '/symfony/intl/Symfony/Component/Intl/Resources/stubs/Collator.php',
+    'IntlDateFormatter' => $vendorDir . '/symfony/intl/Symfony/Component/Intl/Resources/stubs/IntlDateFormatter.php',
+    'Locale' => $vendorDir . '/symfony/intl/Symfony/Component/Intl/Resources/stubs/Locale.php',
+    'NumberFormatter' => $vendorDir . '/symfony/intl/Symfony/Component/Intl/Resources/stubs/NumberFormatter.php',
     'SessionHandlerInterface' => $vendorDir . '/symfony/http-foundation/Symfony/Component/HttpFoundation/Resources/stubs/SessionHandlerInterface.php',
 );

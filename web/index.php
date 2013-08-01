@@ -16,7 +16,7 @@ $loader->add('LdoParser', __DIR__ . '/../src/');
 $loader->add('LdoDrupal', __DIR__ . '/../src/');
 
 $env = getenv('APP_ENV') ?: 'prod';
-$app->register(new Igorw\Silex\ConfigServiceProvider(__DIR__."/../config/$env.json"));
+//$app->register(new Igorw\Silex\ConfigServiceProvider(__DIR__."/../config/$env.json"));
 $app->register(new Silex\Provider\TwigServiceProvider(), array(
   'twig.path' => __DIR__.'/views',
 ));
