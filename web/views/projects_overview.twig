@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>Translation similarity reports overview</title>
+    <link href="{{ app.request.basepath }}/css/file.css" rel="stylesheet" media="all" />
+</head>
+<body>
+<div class="header">
+    <h1>Translation</h1>
+</div>
+<div class="content">
+    <div class="data">
+        <h2>Translation similarity report</h2>
+        <ul>
+            {% for module_name, module_data in data %}
+                {% if module_data['count'] > 0 %}
+                    <li class="warning"><p>The project <em>{{ module_data['project'] }}</em> has <strong><a href="/module/{{ module_name }}/{{ module_data['version'] }}">{{ module_data['count'] }} similar<sup>*</sup> strings</a></strong></p></li>
+                {% else %}
+                    <li class="success"><p>The project <em>{{ module_data['project'] }}</em> doesn't have similar strings. Perfect for the translators!</p></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+
+        <p>
+            <sup>*</sup> similar means sounds alike or written alike.
+        </p>
+        <p>
+            <a href="/process/{{ new_offset }}/{{ limit }}">Check the next {{ limit }} projects</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>

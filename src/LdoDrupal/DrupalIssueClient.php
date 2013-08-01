@@ -13,7 +13,6 @@ class DrupalIssueClient {
   }
 
   function postIssues() {
-
     // Delete cookie file if it exists, otherwise login will fail.
     $cookie_file = '/tmp/cookie.txt';
     if (file_exists($cookie_file)) {

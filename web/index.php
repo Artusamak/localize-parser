@@ -28,41 +28,43 @@ $app->get('/process/{offset}/{limit}', function($offset = 0, $limit = 5) use ($a
 
   // Process the projects fetched from the parser.
   $processor = new LocalizeProcessor(array(
-    'projects' => $parser->getModules(),
+    'modules' => $parser->getModules(),
     'offset' => $offset,
     'limit' => $limit,
   ));
   $processor->parseItems();
 
-  // Generate the report of the processed projects.
-  $output = $processor->getFormattedOutput();
+  // Fetch the report data.
+  $data = $processor->getRawData();
 
-  $new_offset = $offset + $limit;
-  $new_limit = $limit;
-  $output .= "<a href=\"/process/$new_offset/$new_limit\">Go for next round $new_offset / $new_limit</a>";
+  // Output the report.
+  $output = $app['twig']->render('projects_overview.twig', array(
+    'data' => $data,
+    'offset' => $offset,
+    'new_offset' => $offset + $limit,
+    'limit' => $limit
+  ));
+
   return $output;
 });
 
 $app->get('/module/{module_name}/{version}', function($module_name, $version) use ($app) {
-  // Fetch project matching given module name.
-  $parser = new LocalizeParser(array(
-    'modules' => array($module_name),
-  ));
-
-  // Instanciate the po files processor.
-  $processor = new LocalizeProcessor();
-
   // Collect project data from d.o if we don't know the version we want to
   // process.
   // Otherwise just format the version and project title for processing.
   if (!$version) {
+    // Fetch project matching given module name.
+    $parser = new LocalizeParser(array(
+      'modules' => array($module_name),
+    ));
     $module = $parser->buildModule($module_name);
   }
   else {
     $module = array('version' => $version);
   }
 
-  // Do the processing.
+  // Instanciate the po files processor.
+  $processor = new LocalizeProcessor();
   $processor->parseItem($module_name, $module);
 
   // Fetch the report data.
@@ -73,12 +75,6 @@ $app->get('/module/{module_name}/{version}', function($module_name, $version) us
     'project_title' => $data[$module_name]['project'],
     'project_data' => $data[$module_name]['results'],
   ));
-
-  // Post the report on d.o in a new issue of the given project.
-//  $issue_client = new DrupalIssueClient(array(
-//    'projects' => $processor->getRawData(),
-//  ));
-//  $output = $issue_client->postIssues();
 
   return $output;
 })

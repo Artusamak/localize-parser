@@ -70,6 +70,8 @@ class LocalizeProcessor {
 
     $this->data[$module_name] = array(
       'project' => $parsed['info']['Project-Id-Version'],
+      'version' => $parsed['info']['Project-Version'],
+      'count' => $similar['count'],
       'results' => $similar,
     );
   }
@@ -292,6 +294,7 @@ class LocalizeProcessor {
    */
   private function compareStrings($strings) {
     $result = array();
+    $count = 0;
 
     if (isset($strings[''])) {
       unset($strings['']);
@@ -307,24 +310,28 @@ class LocalizeProcessor {
             if (strtolower($string1) == strtolower($string2)) {
               // (Almost) identical.
               $result['identical'][] = array($string1, $string2);
+              $count++;
               continue;
             }
 
             if (metaphone($string1) == metaphone($string2)) {
               // Sound identical.
               $result['sound_similar'][] = array($string1, $string2);
+              $count++;
               continue;
             }
 
             similar_text($string1, $string2, $percent);
             if (round($percent) >= 95) {
               $result['look_similar'][] = array($string1, $string2);
+              $count++;
               continue;
             }
           }
         }
       }
     }
+    $result['count'] = $count;
     return $result;
   }
 

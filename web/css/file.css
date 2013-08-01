@@ -1,15 +1,47 @@
+html {
+    background: transparent url('images/bg-top.png') repeat-x 0 0;
+    margin: 0;
+    padding: 0;
+}
 body {
     font-family: Verdana;
     font-size: 13px;
-    width: 600px;
+    margin: auto;
+    padding: 0;
+    width: 800px;
 }
 
 h2 {
-    font-size: 26px;
+    font-size: 2em;
+    font-weight: normal;
+    line-height: 1.385em;
+    margin: 0 0 0.692em;
 }
 
 h3 {
-    font-size: 20px;
+    font-size: 1.538em;
+    font-weight: normal;
+    line-height: 1.35em;
+    margin: 0 0 0.45em;
+}
+
+a {
+    color: #0678BE;
+    text-decoration: none;
+}
+
+.header {
+    height: 150px;
+    margin: auto;
+    width: 800px;
+}
+
+.header h1 {
+    background: transparent url("images/sprites-localize.png") no-repeat 0 0;
+    height: 63px;
+    overflow: hidden;
+    text-indent: -999em;
+    width: 413px;
 }
 
 .project .entry-wrapper {
@@ -45,4 +77,12 @@ h3 {
 .project div.entry .amp {
     font-size: 40px;
     vertical-align: middle;
+}
+
+ul li.warning {
+    list-style-image: url('images/warning.png');
+}
+
+ul li.success {
+    list-style-image: url('images/ok.png');
 }
