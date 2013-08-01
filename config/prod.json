@@ -1,5 +1,5 @@
 {
-  "debug": false,
+  "debug": true,
   "default_offset": 0,
   "default_limit": 5,
   "major_version": "7.x",

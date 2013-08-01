@@ -13,14 +13,14 @@ class DrupalIssueClient {
     }
   }
 
-  function postProjectIssue($output, \Silex\Application $app) {
+  function postProjectIssue(\LdoParser\LocalizeProcessor $processor, \Silex\Application $app) {
     $ch = curl_init();
     $this->botConnect($ch, $app);
-    $this->postIssue($ch, $output, $app);
+    $this->postIssue($ch, $processor, $app);
     curl_close($ch);
   }
 
-  function postIssue(&$ch, $output, \Silex\Application $app) {
+  function postIssue(&$ch, \LdoParser\LocalizeProcessor $processor, \Silex\Application $app) {
     // Fetch empty new issue form to find form token.
     $new_issue_url = 'https://drupal.org/node/add/project-issue/';
 
@@ -94,7 +94,10 @@ class DrupalIssueClient {
     if (empty($version)) {
       $version = (string) array_shift($options);
     }
-    
+
+    // Output the report.
+    $issue_body = $processor->processOutput('project_report_do', $app);
+
     // POST a new issue.
     $new_issue_url = 'https://drupal.org/node/add/project-issue/';
     curl_setopt($ch, CURLOPT_URL, $new_issue_url . $this->module_name);
@@ -103,7 +106,7 @@ class DrupalIssueClient {
       'category' => $category,
       'rid' => $version,
       'title' => $app['bot_issue_title'],
-      'body' => $output,
+      'body' => $issue_body,
       'form_id' => 'project_issue_node_form',
       'form_token' => $form_token,
       'form_build_id' => $form_build_id,

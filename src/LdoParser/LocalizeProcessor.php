@@ -6,10 +6,11 @@ class LocalizeProcessor {
 
   const MIN_STRING_LENGTH = 4;
 
-  var $modules = array();
-  var $offset = 0;
-  var $limit = 5;
-  var $data = '';
+  protected $modules = array();
+  protected $offset = 0;
+  protected $limit = 5;
+  protected $data = '';
+  protected $last_module_name;
 
   function __construct($params = array()) {
     foreach ($params as $key => $value) {
@@ -27,32 +28,35 @@ class LocalizeProcessor {
     return $this->data;
   }
 
-  public function getFormattedOutput() {
-    $output = '';
-    foreach ($this->data as $module_name => $module_data) {
-      if (!empty($module_data['results'])) {
-        $output .= '<h2>Translation report</h2>';
-        $output .= '<h3>Project <em>' . $this->modules[$module_name]['title'] . '</em>: </h3>';
-        $output .= '<div class="project">';
-        $output .= "<p>We generated for you a report based on an analyze of the strings in your module.This report is there in order to ease the work of the translation teams, they often bump into strings that are really alike (for instance the same sentence with a period at the end or not) and have to translate them twice!<br />";
-        $output .= "We hope that you will use this report to unify those strings.</p>";
-        $output .= "<p>Here is a list of strings that we identified to be really close or that sounds really alike.</p>";
-
-        foreach ($module_data['results'] as $key => $similar_set) {
-          if (count($similar_set) > 0) {
-            foreach ($similar_set as $identical) {
-              $output .= '<div class="entry">' . $identical[0] . ' <span class="amp">&</span> ' . $identical[1] . '</div>';
-            }
-          }
-        }
-      }
-      else {
-        $output .= '<p>The project <em>' . $this->modules[$module_name]['title'] . '</em> doesn\'t have similar strings. Perfect for the translators!</p>';
-      }
+  public function processOutput($template, \Silex\Application $app) {
+    switch ($template) {
+      case 'projects_overview':
+        $arguments = array(
+          'data' => $this->data,
+          'offset' => $this->offset,
+          'new_offset' => $this->offset + $this->limit,
+          'limit' => $this->limit
+        );
+        break;
+      case 'project_report':
+        $arguments = array(
+          'project_name' => $this->last_module_name,
+          'project_title' => $this->data[$this->last_module_name]['project'],
+          'project_data' => $this->data[$this->last_module_name]['results'],
+          'project_count' => $this->data[$this->last_module_name]['count'],
+          'project_version' => $this->data[$this->last_module_name]['version'],
+        );
+        break;
+      case 'project_report_do':
+        $arguments = array(
+          'project_title' => $this->data[$this->last_module_name]['project'],
+          'project_data' => $this->data[$this->last_module_name]['results'],
+        );
+        break;
     }
-    return $output;
+    return $app['twig']->render($template . '.twig', $arguments);
   }
-
+  
   public function parseItems() {
     foreach ($this->modules as $module_name => $module) {
       $this->parseItem($module_name, $module);
@@ -74,6 +78,7 @@ class LocalizeProcessor {
       'count' => $similar['count'],
       'results' => $similar,
     );
+    $this->last_module_name = $module_name;
   }
 
   /**

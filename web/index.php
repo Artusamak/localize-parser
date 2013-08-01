@@ -37,16 +37,8 @@ $app->get('/process/{offset}/{limit}', function($offset, $limit) use ($app) {
   ));
   $processor->parseItems();
 
-  // Fetch the report data.
-  $data = $processor->getRawData();
-
   // Output the report.
-  $output = $app['twig']->render('projects_overview.twig', array(
-    'data' => $data,
-    'offset' => $offset,
-    'new_offset' => $offset + $limit,
-    'limit' => $limit
-  ));
+  $output = $processor->processOutput('projects_overview', $app);
 
   return $output;
 })
@@ -72,17 +64,8 @@ $app->get('/module/{module_name}/{version}', function($module_name, $version) us
   $processor = new LocalizeProcessor();
   $processor->parseItem($module_name, $module);
 
-  // Fetch the report data.
-  $data = $processor->getRawData();
-
   // Output the report.
-  $output = $app['twig']->render('project_report.twig', array(
-    'project_name' => $module_name,
-    'project_title' => $data[$module_name]['project'],
-    'project_data' => $data[$module_name]['results'],
-    'project_count' => $data[$module_name]['count'],
-    'project_version' => $data[$module_name]['version'],
-  ));
+  $output = $processor->processOutput('project_report', $app);
 
   return $output;
 })
@@ -100,18 +83,12 @@ $app->get('/module/post_report/{module_name}/{version}', function($module_name, 
   $data = $processor->getRawData();
 
   if ($data[$module_name]['count'] > 0) {
-    // Output the report.
-    $report = $app['twig']->render('project_report_do.twig', array(
-      'project_title' => $data[$module_name]['project'],
-      'project_data' => $data[$module_name]['results'],
-    ));
-
     // Post the report on d.o in a new issue of the given project.
     $issue_client = new DrupalIssueClient(array(
       'module_name' => $module_name,
       'version' => $version,
     ));
-    $issue_client->postProjectIssue($report, $app);
+    $issue_client->postProjectIssue($processor, $app);
 
     return 'Project posted on d.o.';
   }
