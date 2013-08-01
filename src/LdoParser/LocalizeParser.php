@@ -3,20 +3,21 @@
 namespace LdoParser;
 
 class LocalizeParser {
-  private $base_url = 'http://ftp.drupal.org/files/translations/7.x/';
-  private $update_url = 'http://updates.drupal.org/release-history/';
+  private $base_url = '';
+  private $update_url = '';
   private $language = 'fr';
-  private $major_version = '7.x';
-  private $version = '7.x-1.0';
+  private $major_version = '';
   private $modules = array();
-  private $offset;
-  private $limit;
   private $modules_raw;
 
   /**
    * Lazy contructor to initialize arguments as attributes.
    */
-  function __construct($params) {
+  function __construct($params, \Silex\Application $app) {
+    $this->base_url       = $app['download_base_url'] . $app['major_version'] . '/';
+    $this->update_url     = $app['update_url'];
+    $this->major_version  = $app['major_version'];
+
     foreach ($params as $key => $value) {
       $this->$key = $value;
     }
@@ -57,10 +58,10 @@ class LocalizeParser {
   /**
    * Builds the modules list and download the modules po files.
    */
-  function buildModules() {
+  function buildModules(\Silex\Application $app) {
     // Parse the html dump of the ftp page listing the modules.
     // @see dump at $base_url.
-    $this->prepareModulesList();
+    $this->prepareModulesList($app);
 
     // Download the modules translations.
     $this->prepareModulesFiles();
@@ -129,9 +130,9 @@ class LocalizeParser {
    *
    * Stores an array of the modules.
    */
-  function prepareModulesList() {
+  function prepareModulesList(\Silex\Application $app) {
     // Get file content.
-    $filename = __DIR__ . '/../../snippet.modules.list.html';
+    $filename = __DIR__ . $app['modules_file_list'];
     $f = fopen($filename, 'r');
     $contents = fread($f, filesize($filename));
     fclose($f);

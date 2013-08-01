@@ -13,14 +13,14 @@ class DrupalIssueClient {
     }
   }
 
-  function postProjectIssue($output) {
+  function postProjectIssue($output, \Silex\Application $app) {
     $ch = curl_init();
-    $this->botConnect($ch);
-    $this->postIssue($ch, $output);
+    $this->botConnect($ch, $app);
+    $this->postIssue($ch, $output, $app);
     curl_close($ch);
   }
 
-  function postIssue(&$ch, $output) {
+  function postIssue(&$ch, $output, \Silex\Application $app) {
     // Fetch empty new issue form to find form token.
     $new_issue_url = 'https://drupal.org/node/add/project-issue/';
 
@@ -102,7 +102,7 @@ class DrupalIssueClient {
       'component' => $component,
       'category' => $category,
       'rid' => $version,
-      'title' => '[Bot] Translation similarity report',
+      'title' => $app['bot_issue_title'],
       'body' => $output,
       'form_id' => 'project_issue_node_form',
       'form_token' => $form_token,
@@ -124,9 +124,9 @@ class DrupalIssueClient {
    * @return array
    * @throws \Exception
    */
-  public function botConnect(&$ch) {
+  public function botConnect(&$ch, \Silex\Application $app) {
     // Delete cookie file if it exists, otherwise login will fail.
-    $cookie_file = '/tmp/cookie.txt';
+    $cookie_file = $app['cookie_file'];
     if (file_exists($cookie_file)) {
       unlink($cookie_file);
     }
@@ -146,8 +146,8 @@ class DrupalIssueClient {
       // @TODO: Provide d.o. user details here.
       // Or even better: add external yaml config file. :P
       // https://github.com/igorw/ConfigServiceProvider ?
-      'name' => '',
-      'pass' => '',
+      'name' => $app['d.o.username'],
+      'pass' => $app['d.o.password'],
       'form_id' => 'user_login',
       'op' => 'Log in',
     );

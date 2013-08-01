@@ -1,0 +1,13 @@
+{
+  "debug": false,
+  "default_offset": 0,
+  "default_limit": 5,
+  "major_version": "7.x",
+  "download_base_url": "http://ftp.drupal.org/files/translations/",
+  "update_url": "http://updates.drupal.org/release-history/",
+  "modules_file_list": "/../../snippet.modules.list.html",
+  "cookie_file": "/tmp/cookie.txt",
+  "d.o.username": "",
+  "d.o.password": "",
+  "bot_issue_title": "[Bot] Translation similarity report"
+}

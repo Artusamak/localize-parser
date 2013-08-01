@@ -16,18 +16,18 @@ $loader->add('LdoParser', __DIR__ . '/../src/');
 $loader->add('LdoDrupal', __DIR__ . '/../src/');
 
 $env = getenv('APP_ENV') ?: 'prod';
-//$app->register(new Igorw\Silex\ConfigServiceProvider(__DIR__."/../config/$env.json"));
+$app->register(new Igorw\Silex\ConfigServiceProvider(__DIR__."/../config/$env.json"));
 $app->register(new Silex\Provider\TwigServiceProvider(), array(
   'twig.path' => __DIR__.'/views',
 ));
 
-$app->get('/process/{offset}/{limit}', function($offset = 0, $limit = 5) use ($app) {
+$app->get('/process/{offset}/{limit}', function($offset, $limit) use ($app) {
   // Fetch the projects matching the current limits.
   $parser = new LocalizeParser(array(
     'interval_bottom' => $offset,
     'interval_top' => $offset + $limit,
-  ));
-  $parser->buildModules();
+  ), $app);
+  $parser->buildModules($app);
 
   // Process the projects fetched from the parser.
   $processor = new LocalizeProcessor(array(
@@ -49,7 +49,9 @@ $app->get('/process/{offset}/{limit}', function($offset = 0, $limit = 5) use ($a
   ));
 
   return $output;
-});
+})
+->value('offset', $app['default_offset'])
+->value('limit', $app['default_limit']);
 
 $app->get('/module/{module_name}/{version}', function($module_name, $version) use ($app) {
   // Collect project data from d.o if we don't know the version we want to
@@ -59,7 +61,7 @@ $app->get('/module/{module_name}/{version}', function($module_name, $version) us
     // Fetch project matching given module name.
     $parser = new LocalizeParser(array(
       'modules' => array($module_name),
-    ));
+    ), $app);
     $module = $parser->buildModule($module_name);
   }
   else {
@@ -109,7 +111,7 @@ $app->get('/module/post_report/{module_name}/{version}', function($module_name, 
       'module_name' => $module_name,
       'version' => $version,
     ));
-    $issue_client->postProjectIssue($report);
+    $issue_client->postProjectIssue($report, $app);
 
     return 'Project posted on d.o.';
   }
@@ -118,5 +120,4 @@ $app->get('/module/post_report/{module_name}/{version}', function($module_name, 
   }
 });
 
-$app['debug'] = TRUE;
 $app->run();
