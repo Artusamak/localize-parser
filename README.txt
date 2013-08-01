@@ -19,3 +19,4 @@ This projects is able to do 3 things:
 Improvements
 * Regularly scanning drupal projects list to update the projects.
 * Test compatibility with dev branches.
+* Implement a coder extension.
