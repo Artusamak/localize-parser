@@ -15,7 +15,8 @@
         <ul>
             {% for module_name, module_data in data %}
                 {% if module_data['count'] > 0 %}
-                    <li class="warning"><p>The project <em>{{ module_data['project'] }}</em> has <strong><a href="/module/{{ module_name }}/{{ module_data['version'] }}">{{ module_data['count'] }} similar<sup>*</sup> strings</a></strong></p></li>
+                    <li class="warning"><p>The project <em>{{ module_data['project'] }}</em> has <strong><a href="/module/{{ module_name }}/{{ module_data['version'] }}">{{ module_data['count'] }} similar<sup>*</sup> strings</a></strong>.<br />
+                            <a href="/module/post_report/{{ module_name }}/{{ module_data['version'] }}">Post report on d.o</a></p></li>
                 {% else %}
                     <li class="success"><p>The project <em>{{ module_data['project'] }}</em> doesn't have similar strings. Perfect for the translators!</p></li>
                 {% endif %}

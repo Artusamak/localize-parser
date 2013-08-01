@@ -86,3 +86,8 @@ ul li.warning {
 ul li.success {
     list-style-image: url('images/ok.png');
 }
+
+p.success {
+    background: transparent url('images/ok.png') no-repeat 0 0;
+    padding-left: 1.7em;
+}

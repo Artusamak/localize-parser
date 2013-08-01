@@ -72,13 +72,48 @@ $app->get('/module/{module_name}/{version}', function($module_name, $version) us
 
   // Output the report.
   $output = $app['twig']->render('project_report.twig', array(
+    'project_name' => $module_name,
     'project_title' => $data[$module_name]['project'],
     'project_data' => $data[$module_name]['results'],
+    'project_count' => $data[$module_name]['count'],
+    'project_version' => $data[$module_name]['version'],
   ));
 
   return $output;
 })
 ->value('version', FALSE);
+
+$app->get('/module/post_report/{module_name}/{version}', function($module_name, $version) use ($app) {
+  // Instanciate the po files processor.
+  $processor = new LocalizeProcessor();
+  $module = array('version' => $version);
+
+  // Do the processing.
+  $processor->parseItem($module_name, $module);
+
+  // Fetch the report data.
+  $data = $processor->getRawData();
+
+  if ($data[$module_name]['count'] > 0) {
+    // Output the report.
+    $report = $app['twig']->render('project_report_do.twig', array(
+      'project_title' => $data[$module_name]['project'],
+      'project_data' => $data[$module_name]['results'],
+    ));
+
+    // Post the report on d.o in a new issue of the given project.
+    $issue_client = new DrupalIssueClient(array(
+      'module_name' => $module_name,
+      'version' => $version,
+    ));
+    $issue_client->postProjectIssue($report);
+
+    return 'Project posted on d.o.';
+  }
+  else {
+    return 'The project does not need to post a report on d.o (no translations errors).';
+  }
+});
 
 $app['debug'] = TRUE;
 $app->run();
