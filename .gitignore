@@ -3,3 +3,6 @@
 
 # Ignore downloaded po files.
 downloads/*
+
+# Ignore dependencies resolved with Composer.
+vendor/
