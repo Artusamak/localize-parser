@@ -7,6 +7,17 @@ providing them the list of strings that are similar (or sound similar).
 
 This idea came of a brainstorming between pomliane, saisai and DuaelFR.
 
+How to install?
+---------------
+
+After cloning this repository, first install the dependencies:
+
+    php composer.phar install
+
+Next, set up your webserver of choice to serve files in `web` directory.
+
+After that, open the page in browser.
+
 How to use?
 -----------
 
