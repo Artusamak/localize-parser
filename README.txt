@@ -20,4 +20,5 @@ Improvements
 * Regularly scanning drupal projects list to update the projects.
 * Test compatibility with dev branches.
 * Implement a coder extension.
+* Store repots in a DB and let maintainers decide if a string should be excluded from the report.
 
