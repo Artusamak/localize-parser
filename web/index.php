@@ -21,6 +21,10 @@ $app->register(new Silex\Provider\TwigServiceProvider(), array(
   'twig.path' => __DIR__.'/views',
 ));
 
+$app->get('/', function() use ($app) {
+  return $app['twig']->render('root.twig');
+});
+
 $app->get('/process/{offset}/{limit}', function($offset, $limit) use ($app) {
   // Fetch the projects matching the current limits.
   $parser = new LocalizeParser(array(
